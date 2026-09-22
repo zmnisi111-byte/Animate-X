@@ -74,6 +74,16 @@ Max workers: 1
 Execution timeout: high enough for long videos
 ```
 
+If the GHCR package is private, add private registry credentials in RunPod:
+
+```text
+Registry server: ghcr.io
+Username: zmnisi111-byte
+Password / Token: GitHub classic token with read:packages
+```
+
+Keep this token private. It is only for RunPod pulling the container image.
+
 Add environment variables:
 
 ```text
@@ -98,6 +108,8 @@ R2_ENDPOINT_URL
 R2_ACCESS_KEY_ID
 R2_SECRET_ACCESS_KEY
 R2_BUCKET
+GHCR_USERNAME optional local note
+GHCR_TOKEN optional local note
 ```
 
 The `.env` file is ignored by git. It should contain local secrets only.

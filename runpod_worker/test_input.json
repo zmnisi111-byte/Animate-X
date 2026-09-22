@@ -1,0 +1,7 @@
+{
+  "input": {
+    "batch_id": "test-batch",
+    "manifest_url": "r2://your-bucket/manifests/test-batch.json"
+  }
+}
+

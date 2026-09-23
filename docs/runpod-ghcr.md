@@ -147,6 +147,30 @@ Poll a RunPod job:
 python -m animatex cloud-status <runpod-job-id>
 ```
 
+## 7.1 Parallel Longform Chunks
+
+For long clips, use the chunked submit path. This creates one R2 manifest per video window and submits each
+window as a separate RunPod Serverless job:
+
+```powershell
+python -m animatex cloud-submit-chunks
+```
+
+Poll and persist chunk statuses:
+
+```powershell
+python -m animatex cloud-status-chunks data\manifests\<batch-id>.chunks.json
+```
+
+Once all chunks are `COMPLETED`, stitch and upload the final MP4:
+
+```powershell
+python -m animatex cloud-stitch-chunks data\manifests\<batch-id>.chunks.json
+```
+
+Set the RunPod endpoint `workers.max` above `1` before using this path. If `workers.max=1`, the chunks are split
+correctly but still render one at a time.
+
 ## Current Smoke Endpoint
 
 The initial RunPod smoke endpoint was created with:

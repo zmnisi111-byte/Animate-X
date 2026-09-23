@@ -4,6 +4,12 @@ import argparse
 from pathlib import Path
 
 from .cloud_manifest import build_worker_manifest, stage_batch_to_r2
+from .cloud_chunks import (
+    refresh_chunked_status,
+    stage_chunked_batch_to_r2,
+    stitch_completed_chunks,
+    submit_chunked_batch,
+)
 from .config import AppConfig
 from .db import JobStore
 from .env import load_env_file
@@ -44,13 +50,23 @@ def make_parser() -> argparse.ArgumentParser:
     sub.add_parser("run")
     sub.add_parser("cloud-manifest")
     sub.add_parser("cloud-stage")
+    sub.add_parser("cloud-stage-chunks")
 
     submit = sub.add_parser("cloud-submit")
     submit.add_argument("--manifest-url")
     submit.add_argument("--batch-id")
 
+    submit_chunks = sub.add_parser("cloud-submit-chunks")
+    submit_chunks.add_argument("--coordinator")
+
     status = sub.add_parser("cloud-status")
     status.add_argument("job_id")
+
+    status_chunks = sub.add_parser("cloud-status-chunks")
+    status_chunks.add_argument("coordinator")
+
+    stitch_chunks = sub.add_parser("cloud-stitch-chunks")
+    stitch_chunks.add_argument("coordinator")
 
     server = sub.add_parser("serve")
     server.add_argument("--host", default="127.0.0.1")
@@ -144,6 +160,20 @@ def main(argv: list[str] | None = None) -> int:
         print(f"R2 manifest: {manifest_uri}")
         return 0
 
+    if args.command == "cloud-stage-chunks":
+        try:
+            batch_id, coordinator_path, coordinator_uri = stage_chunked_batch_to_r2(config, store)
+        except RuntimeError as exc:
+            print(f"Cloud chunk stage failed: {exc}")
+            return 1
+        if not batch_id or not coordinator_path or not coordinator_uri:
+            print("No queued jobs.")
+            return 0
+        print(f"Batch ID: {batch_id}")
+        print(f"Local coordinator: {coordinator_path}")
+        print(f"R2 coordinator: {coordinator_uri}")
+        return 0
+
     if args.command == "cloud-submit":
         batch_id = args.batch_id
         manifest_url = args.manifest_url
@@ -168,12 +198,50 @@ def main(argv: list[str] | None = None) -> int:
         print(json_dump(result))
         return 0
 
+    if args.command == "cloud-submit-chunks":
+        coordinator_path = Path(args.coordinator) if args.coordinator else None
+        if coordinator_path is None:
+            batch_id, coordinator_path, coordinator_uri = stage_chunked_batch_to_r2(config, store)
+            if not batch_id or not coordinator_path or not coordinator_uri:
+                print("No queued jobs.")
+                return 0
+            print(f"Batch ID: {batch_id}")
+            print(f"Local coordinator: {coordinator_path}")
+            print(f"R2 coordinator: {coordinator_uri}")
+        try:
+            client = RunPodServerlessClient(RunPodServerlessConfig.from_env())
+            result = submit_chunked_batch(coordinator_path, client)
+        except RuntimeError as exc:
+            print(f"Cloud chunk submit failed: {exc}")
+            return 1
+        print(json_dump(result))
+        return 0
+
     if args.command == "cloud-status":
         try:
             client = RunPodServerlessClient(RunPodServerlessConfig.from_env())
             print(json_dump(client.status(args.job_id)))
         except RuntimeError as exc:
             print(f"Cloud status failed: {exc}")
+            return 1
+        return 0
+
+    if args.command == "cloud-status-chunks":
+        try:
+            client = RunPodServerlessClient(RunPodServerlessConfig.from_env())
+            result = refresh_chunked_status(Path(args.coordinator), client)
+            print(json_dump(result))
+        except RuntimeError as exc:
+            print(f"Cloud chunk status failed: {exc}")
+            return 1
+        return 0
+
+    if args.command == "cloud-stitch-chunks":
+        try:
+            result = stitch_completed_chunks(config, store, Path(args.coordinator))
+            print(json_dump(result))
+        except RuntimeError as exc:
+            print(f"Cloud chunk stitch failed: {exc}")
             return 1
         return 0
 

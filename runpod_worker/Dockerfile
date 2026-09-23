@@ -29,6 +29,10 @@ COPY runpod_worker/requirements.txt /app/requirements.txt
 RUN python3 -m pip install --no-cache-dir --upgrade pip setuptools wheel \
     && python3 -m pip install --no-cache-dir -r /app/requirements.txt
 
+RUN python3 -m pip install --no-cache-dir \
+    torch==2.8.0 torchvision==0.23.0 torchaudio==2.8.0 \
+    --index-url https://download.pytorch.org/whl/cu128
+
 RUN git clone --depth 1 https://github.com/Wan-Video/Wan2.2.git "$WAN_REPO_DIR" \
     && sed -i '/flash_attn/d;/flash-attn/d' "$WAN_REPO_DIR/requirements.txt" \
     && python3 -m pip install --no-cache-dir -r "$WAN_REPO_DIR/requirements.txt" \

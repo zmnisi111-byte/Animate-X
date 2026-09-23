@@ -146,3 +146,21 @@ Poll a RunPod job:
 ```powershell
 python -m animatex cloud-status <runpod-job-id>
 ```
+
+## Current Smoke Endpoint
+
+The initial RunPod smoke endpoint was created with:
+
+```text
+Endpoint ID: yv6r8py4oiq293
+Image: ghcr.io/zmnisi111-byte/animatex-wan-worker:0.1.0
+GPU pool: BLACKWELL_96
+Workers: min 0, max 1
+WAN_MOCK: 1
+```
+
+The first cloud smoke job completed and wrote output to R2 under:
+
+```text
+outputs/5c7ce99b-5e3c-4d5b-8aa6-a9154796e8ab/
+```

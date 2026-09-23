@@ -75,7 +75,9 @@ class WanRunner:
         if is_replacement:
             preprocess_cmd.extend(["--iterations", "3", "--k", "7", "--w_len", "1", "--h_len", "1", "--replace_flag"])
         else:
-            preprocess_cmd.extend(["--retarget_flag", "--use_flux"])
+            preprocess_cmd.append("--retarget_flag")
+            if os.getenv("WAN_USE_FLUX", "0") == "1":
+                preprocess_cmd.append("--use_flux")
         self._run(preprocess_cmd, cwd=repo_dir, timeout=self._timeout("WAN_PREPROCESS_TIMEOUT_SECONDS", 1800))
 
         generate_cmd = [

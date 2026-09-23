@@ -182,6 +182,7 @@ WAN_AUTO_DOWNLOAD=1
 WAN_RESOLUTION_AREA=1280 720
 WAN_REFERT_NUM=1
 WAN_OFFLOAD_MODEL=True
+WAN_USE_FLUX=0
 WAN_PREPROCESS_TIMEOUT_SECONDS=1800
 WAN_GENERATE_TIMEOUT_SECONDS=7200
 WAN_MODEL_DOWNLOAD_TIMEOUT_SECONDS=7200
@@ -189,3 +190,6 @@ WAN_MODEL_DOWNLOAD_TIMEOUT_SECONDS=7200
 
 The first real generation test should use a very short Draft job. Model download can dominate the first run unless
 a RunPod network volume or other persistent cache is added.
+
+Set `WAN_USE_FLUX=1` only after adding the expected Flux Kontext checkpoint under
+`process_checkpoint/FLUX.1-Kontext-dev`; the base Animate checkpoint does not include that folder.

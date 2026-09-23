@@ -8,12 +8,14 @@ ENV WAN_MODEL_DIR=/workspace/models/Wan2.2-Animate-14B
 ENV WAN_AUTO_DOWNLOAD=1
 ENV HF_HOME=/workspace/hf
 ENV PIP_ROOT_USER_ACTION=ignore
+ENV MAX_JOBS=2
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     python3 \
     python3-pip \
     python3-dev \
     build-essential \
+    ninja-build \
     git \
     ffmpeg \
     ca-certificates \
@@ -28,8 +30,9 @@ RUN python3 -m pip install --no-cache-dir --upgrade pip setuptools wheel \
     && python3 -m pip install --no-cache-dir -r /app/requirements.txt
 
 RUN git clone --depth 1 https://github.com/Wan-Video/Wan2.2.git "$WAN_REPO_DIR" \
+    && sed -i '/flash_attn/d;/flash-attn/d' "$WAN_REPO_DIR/requirements.txt" \
     && python3 -m pip install --no-cache-dir -r "$WAN_REPO_DIR/requirements.txt" \
-    || (python3 -m pip install --no-cache-dir torch torchvision torchaudio opencv-python diffusers transformers==4.51.3 tokenizers accelerate tqdm "imageio[ffmpeg]" easydict ftfy dashscope imageio-ffmpeg "numpy<2" && python3 -m pip install --no-cache-dir flash-attn --no-build-isolation)
+    && python3 -m pip install --no-cache-dir flash-attn --no-build-isolation
 
 COPY runpod_worker/ /app/
 

@@ -37,7 +37,7 @@ RUN python3 -m pip install --no-cache-dir \
 RUN git clone --depth 1 https://github.com/Wan-Video/Wan2.2.git "$WAN_REPO_DIR" \
     && sed -i '/flash_attn/d;/flash-attn/d' "$WAN_REPO_DIR/requirements.txt" \
     && python3 -m pip install --no-cache-dir -r "$WAN_REPO_DIR/requirements.txt" \
-    && python3 -m pip install --no-cache-dir --no-build-isolation -r "$WAN_REPO_DIR/requirements_animate.txt" moviepy \
+    && python3 -m pip install --no-cache-dir --no-build-isolation -r "$WAN_REPO_DIR/requirements_animate.txt" moviepy librosa soundfile \
     && python3 -m pip install --no-cache-dir flash-attn --no-build-isolation
 
 COPY runpod_worker/ /app/

@@ -164,3 +164,28 @@ The first cloud smoke job completed and wrote output to R2 under:
 ```text
 outputs/5c7ce99b-5e3c-4d5b-8aa6-a9154796e8ab/
 ```
+
+## Real Wan Runtime
+
+The worker image contains the official `Wan-Video/Wan2.2` inference code. The image does not bake in the
+Wan2.2-Animate model weights; when `WAN_MOCK=0`, the worker downloads them with `huggingface-cli` unless
+`WAN_AUTO_DOWNLOAD=0`.
+
+Production-relevant endpoint environment variables:
+
+```text
+WAN_MOCK=0
+WAN_MODEL_ID=Wan-AI/Wan2.2-Animate-14B
+WAN_REPO_DIR=/opt/Wan2.2
+WAN_MODEL_DIR=/workspace/models/Wan2.2-Animate-14B
+WAN_AUTO_DOWNLOAD=1
+WAN_RESOLUTION_AREA=1280 720
+WAN_REFERT_NUM=1
+WAN_OFFLOAD_MODEL=True
+WAN_PREPROCESS_TIMEOUT_SECONDS=1800
+WAN_GENERATE_TIMEOUT_SECONDS=7200
+WAN_MODEL_DOWNLOAD_TIMEOUT_SECONDS=7200
+```
+
+The first real generation test should use a very short Draft job. Model download can dominate the first run unless
+a RunPod network volume or other persistent cache is added.

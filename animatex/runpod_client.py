@@ -48,6 +48,7 @@ class RunPodServerlessClient:
             headers={
                 "Authorization": f"Bearer {self.config.api_key}",
                 "Content-Type": "application/json",
+                "User-Agent": "Mozilla/5.0 Animate-X/0.1",
             },
         )
         try:
@@ -56,4 +57,3 @@ class RunPodServerlessClient:
         except urllib.error.HTTPError as exc:
             body = exc.read().decode("utf-8", errors="replace")
             raise RuntimeError(f"RunPod API {exc.code}: {body}") from exc
-

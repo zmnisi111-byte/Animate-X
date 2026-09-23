@@ -9,6 +9,7 @@ ENV WAN_AUTO_DOWNLOAD=1
 ENV HF_HOME=/workspace/hf
 ENV PIP_ROOT_USER_ACTION=ignore
 ENV MAX_JOBS=2
+ENV TORCH_CUDA_ARCH_LIST=12.0
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     python3 \
